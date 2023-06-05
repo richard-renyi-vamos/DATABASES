@@ -1,0 +1,72 @@
+from azure.common.credentials import ServicePrincipalCredentials
+from azure.mgmt.sql import SqlManagementClient
+from azure.mgmt.resource import ResourceManagementClient
+
+# Azure subscription details
+subscription_id = '<your-subscription-id>'
+tenant_id = '<your-tenant-id>'
+client_id = '<your-client-id>'
+client_secret = '<your-client-secret>'
+
+# Resource group and database details
+resource_group_name = '<your-resource-group-name>'
+server_name = '<your-server-name>'
+database_name = '<your-database-name>'
+
+# Create Azure SQL Database
+def create_azure_sql_database():
+    # Authenticate using a service principal
+    credentials = ServicePrincipalCredentials(
+        client_id=client_id,
+        secret=client_secret,
+        tenant=tenant_id
+    )
+    
+    # Create Azure SQL client
+    sql_client = SqlManagementClient(credentials, subscription_id)
+    
+    # Create a database object
+    database = {
+        'name': database_name,
+        'location': 'westus',  # Set your desired location
+        'edition': 'Basic',
+        'requested_service_objective_name': 'Basic'
+    }
+    
+    # Create the database
+    sql_client.databases.create_or_update(
+        resource_group_name,
+        server_name,
+        database_name,
+        database
+    )
+    
+    print('Azure SQL Database created successfully.')
+
+
+# Create Azure resource group
+def create_resource_group():
+    # Create Azure resource management client
+    resource_client = ResourceManagementClient(credentials, subscription_id)
+    
+    # Create resource group object
+    resource_group_params = {
+        'location': 'westus'  # Set your desired location
+    }
+    
+    # Create the resource group
+    resource_client.resource_groups.create_or_update(
+        resource_group_name,
+        resource_group_params
+    )
+    
+    print('Resource group created successfully.')
+
+
+# Main program
+if __name__ == "__main__":
+    create_resource_group()
+    create_azure_sql_database()
+
+
+# CREATED WITH THE HELP OF OPEN-AI CHAT GPT: https://chat.openai.com/chat
