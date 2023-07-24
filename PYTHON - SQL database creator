@@ -1,0 +1,49 @@
+import sqlite3
+
+def read_schema_from_text(file_path):
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+    return lines
+
+def parse_schema_text(schema_text):
+    schema_info = {}
+    table_name = ''
+    columns = []
+
+    for line in schema_text:
+        line = line.strip()
+        if line:
+            if not table_name:
+                table_name = line
+            else:
+                column_name, data_type = line.split(',')
+                columns.append((column_name.strip(), data_type.strip()))
+
+        if line == '' and table_name:
+            schema_info[table_name] = columns
+            table_name = ''
+            columns = []
+
+    return schema_info
+
+def create_sql_database(database_name, schema_info):
+    conn = sqlite3.connect(database_name)
+    cursor = conn.cursor()
+
+    for table_name, columns in schema_info.items():
+        columns_text = ', '.join([f'{column} {data_type}' for column, data_type in columns])
+        create_table_query = f'CREATE TABLE {table_name} ({columns_text});'
+        cursor.execute(create_table_query)
+
+    conn.commit()
+    conn.close()
+
+if __name__ == '__main__':
+    text_file_path = 'schema.txt'  # Replace with the actual path of your text file.
+    database_name = 'my_database.db'  # Replace with the desired database name.
+
+    schema_text = read_schema_from_text(text_file_path)
+    schema_info = parse_schema_text(schema_text)
+    create_sql_database(database_name, schema_info)
+
+# CREATED WITH THE HELP OF OPEN-AI CHAT GPT: https://chat.openai.com/chat
