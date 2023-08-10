@@ -1,0 +1,24 @@
+import sqlite3
+
+def search_entries(keyword):
+    conn = sqlite3.connect('mydatabase.db')
+    cursor = conn.cursor()
+
+    query = f"SELECT * FROM entries WHERE title LIKE '%{keyword}%' OR content LIKE '%{keyword}%'"
+    cursor.execute(query)
+    entries = cursor.fetchall()
+
+    conn.close()
+    return entries
+
+if __name__ == '__main__':
+    search_keyword = input("Enter a keyword to search for: ")
+    search_results = search_entries(search_keyword)
+
+    if search_results:
+        for entry in search_results:
+            print(f"Entry ID: {entry[0]}\nTitle: {entry[1]}\nContent: {entry[2]}\n")
+    else:
+        print("No matching entries found.")
+
+# CREATED WITH THE HELP OF OPEN-AI CHAT GPT: https://chat.openai.com/chat
